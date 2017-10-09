@@ -21,6 +21,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     // 日付の近い順でソート:降順
     // 以降内容をアップデートするとリスト内は自動的に更新される
     var taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: false)
+
+    // カテゴリが格納されるリスト ★★
+    var categoryArray = try! Realm().objects(Category.self).sorted(byKeyPath: "id", ascending: true)
     
     var displayTaskArray:Results<Task>? // ★
     
@@ -70,8 +73,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             // 表示色の設定
             cell.textLabel?.textColor = UIColor.black
 
-            if task!.category != ""{
-                cell.textLabel?.text = (cell.textLabel?.text)! + " [\(task!.category)]"
+            if task!.category.title != ""{
+                cell.textLabel?.text = (cell.textLabel?.text)! + " [\(task!.category.title)]"
             }
             // ここまで
         
