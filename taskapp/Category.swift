@@ -12,9 +12,8 @@ class Category: Object{
     // 管理用ID。プライマリーキー
     dynamic var id = 0
     
-    // カテゴリ
+    // カテゴリ名
     dynamic var title = ""
-    
     /**
      idをプライマリーキーとして設定
      */

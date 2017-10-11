@@ -73,8 +73,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             // 表示色の設定
             cell.textLabel?.textColor = UIColor.black
 
-            if task!.category.title != ""{
-                cell.textLabel?.text = (cell.textLabel?.text)! + " [\(task!.category.title)]"
+            if task!.category?.title != nil{
+                cell.textLabel?.text = (cell.textLabel?.text)! + " [\(task!.category?.title ?? "")]"
             }
             // ここまで
         
@@ -164,7 +164,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         searchBar.resignFirstResponder()
         
         // categoryで絞り込み
-        let predicate = NSPredicate(format: "category CONTAINS %@", searchBar.text!)
+        let predicate = NSPredicate(format: "category.title CONTAINS %@", searchBar.text!)
         displayTaskArray = realm.objects(Task.self).filter(predicate)
         
         // テーブルの再表示
