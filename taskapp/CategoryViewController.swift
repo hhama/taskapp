@@ -51,11 +51,11 @@ class CategoryViewController: UIViewController {
             }
         }
         
-        // 同じカテゴリ名がなければ書き込み
-        if write_flag {
+        // 同じカテゴリ名がなく、かつ、カテゴリ名が空白でなければ書き込み
+        if write_flag && self.categoryTextField.text! != ""{
             try! realm.write {
                 self.category.title = self.categoryTextField.text!
-                self.realm.add(self.category, update: true)
+                self.realm.add(self.category, update: false)
             }
         }
         

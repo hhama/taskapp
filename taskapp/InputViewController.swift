@@ -22,9 +22,10 @@ class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
     
     // カテゴリが格納されるリスト ★★
     var categoryArray = try! Realm().objects(Category.self).sorted(byKeyPath: "id", ascending: true)
+    var categoryNameArray:[String] = []
     
-    // 選択されたカテゴリ名が入る変数 ★★
-    var selectedCategoryTitle = ""
+    // 選択されたカテゴリIDが入る変数 ★★
+    var selectedCategoryId = 0
     
     // カテゴリ作成画面に行く時にセットするフラグ
     var categoryViewFlag = false
@@ -38,13 +39,19 @@ class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
         let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action:#selector(dismissKeyboard))
         self.view.addGestureRecognizer(tapGesture)
         
-        categoryPicker.delegate = self;
-        categoryPicker.dataSource = self;
+        categoryPicker.delegate = self;   // ★★
+        categoryPicker.dataSource = self; // ★★
         
         titleTextField.text = task.title
         contentsTextView.text = task.contents
         datePicker.date = task.date as Date
+        selectedCategoryId = task.category_id // ★★
+        categoryPicker.selectRow(selectedCategoryId, inComponent: 0, animated: true)
         
+        // categoryNameArrayをcategoryArrayから作成 ★★
+        for cat in categoryArray {
+            categoryNameArray.append(cat.title)
+        }
     }
     
     func dismissKeyboard(){
@@ -69,7 +76,7 @@ class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
     
     // UIPickerViewのRowが選択された時の挙動 ★★
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        self.selectedCategoryTitle = self.categoryArray[row].title
+        self.selectedCategoryId = self.categoryArray[row].id
     }
     
     override func didReceiveMemoryWarning() {
@@ -82,7 +89,7 @@ class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
         if !categoryViewFlag {
             try! realm.write {
                 self.task.title = self.titleTextField.text!
-                self.task.category?.title = self.selectedCategoryTitle // ★★
+                self.task.category_id = self.selectedCategoryId // ★★
                 self.task.contents = self.contentsTextView.text
                 self.task.date = self.datePicker.date as NSDate
                 self.realm.add(self.task, update: true)

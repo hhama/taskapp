@@ -10,10 +10,11 @@ import UIKit
 import RealmSwift
 import UserNotifications
 
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource,  UIPickerViewDelegate, UIPickerViewDataSource {
 
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var categorySearchBar: UISearchBar!
+    @IBOutlet weak var categoryPicker: UIPickerView!
+
     
     let realm = try! Realm()
     
@@ -24,6 +25,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     // カテゴリが格納されるリスト ★★
     var categoryArray = try! Realm().objects(Category.self).sorted(byKeyPath: "id", ascending: true)
+    var categoryNameArray:[String] = []
     
     var displayTaskArray:Results<Task>? // ★
     
@@ -34,15 +36,54 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.delegate = self
         tableView.dataSource = self
         
-        categorySearchBar.delegate = self // ★
+        categoryPicker.delegate = self // ★★
+        categoryPicker.dataSource = self; // ★★
         
         displayTaskArray = taskArray // ★
+        // categoryNameArrayをcategoryArrayから作成 ★★
+        categoryNameArray.append("")
+        for cat in categoryArray {
+            categoryNameArray.append(cat.title)
+        }
+        categoryPicker.selectRow(0, inComponent: 0, animated: true)
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+
+    // UIPickerViewの列の数 ★★
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    // UIPickerViewの行数 ★★
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return categoryNameArray.count
+    }
+
+    // UIPickerViewの最初の表示 ★★
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return categoryNameArray[row]
+    }
+
+    // UIPickerViewのRowが選択された時の挙動 ★★
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        // categoryで絞り込み
+        if row == 0 {
+            displayTaskArray = taskArray
+        } else {
+            // let predicate = NSPredicate(format: "category_id == %@", row)
+            // displayTaskArray = realm.objects(Task.self).filter(predicate)
+            displayTaskArray = realm.objects(Task.self).filter("category_id == %@", row - 1).sorted(byKeyPath: "date", ascending: false)
+        }
+        
+        // テーブルの再表示
+        tableView.reloadData()
+    }
+    
+    
 
     // MARK: UITableViewDataSourceプロトコルのメソッド
     // データの数(=セルの数)を返すメソッド
@@ -72,10 +113,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             // ここから課題で追加
             // 表示色の設定
             cell.textLabel?.textColor = UIColor.black
-
-            if task!.category?.title != nil{
-                cell.textLabel?.text = (cell.textLabel?.text)! + " [\(task!.category?.title ?? "")]"
-            }
+            // print("(task?.category_id )! ... \((task?.category_id )!)")
+            cell.textLabel?.text = (cell.textLabel?.text)! + " [\(categoryNameArray[(task?.category_id )! + 1])]"
             // ここまで
         
             let formatter = DateFormatter()
@@ -154,35 +193,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     // 入力画面からもどってきた時にTableViewを更新させる
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        tableView.reloadData()
-    }
-    
-    // 以下、課題で追加
-    // サーチバーで検索ボタンが押された時の処理
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        // キーボードを閉じる
-        searchBar.resignFirstResponder()
-        
-        // categoryで絞り込み
-        let predicate = NSPredicate(format: "category.title CONTAINS %@", searchBar.text!)
-        displayTaskArray = realm.objects(Task.self).filter(predicate)
-        
-        // テーブルの再表示
-        tableView.reloadData()
-    }
-    
-    // サーチバーのキャンセルボタンが押された時の処理
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        // サーチバーの中身を空にする
-        searchBar.text = ""
-        
-        // キーボードを閉じる
-        searchBar.resignFirstResponder()
-        
-        // 表示用配列を元の配列と同じにする
-        displayTaskArray = taskArray
- 
-        // テーブルの再表示
         tableView.reloadData()
     }
 }

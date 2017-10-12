@@ -21,8 +21,8 @@ class Task: Object{
     // 日時
     dynamic var date = NSDate()
     
-    // カテゴリ ★★
-    dynamic var category:Category? = nil
+    // カテゴリID ★★
+    dynamic var category_id = 0
     
     /**
       idをプライマリーキーとして設定
