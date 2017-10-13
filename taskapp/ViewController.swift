@@ -38,14 +38,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         categoryPicker.delegate = self // ★★
         categoryPicker.dataSource = self; // ★★
-        
-        displayTaskArray = taskArray // ★
-        // categoryNameArrayをcategoryArrayから作成 ★★
-        categoryNameArray.append("")
-        for cat in categoryArray {
-            categoryNameArray.append(cat.title)
-        }
-        categoryPicker.selectRow(0, inComponent: 0, animated: true)
     }
 
     override func didReceiveMemoryWarning() {
@@ -114,7 +106,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             // 表示色の設定
             cell.textLabel?.textColor = UIColor.black
             // print("(task?.category_id )! ... \((task?.category_id )!)")
-            cell.textLabel?.text = (cell.textLabel?.text)! + " [\(categoryNameArray[(task?.category_id )! + 1])]"
+            if self.categoryNameArray.count > 1 {
+                cell.textLabel?.text = (cell.textLabel?.text)! + " [\(categoryNameArray[(task?.category_id )! + 1])]"
+            }
             // ここまで
         
             let formatter = DateFormatter()
@@ -190,10 +184,21 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             
     }
     
-    // 入力画面からもどってきた時にTableViewを更新させる
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        displayTaskArray = taskArray // ★
+
+        // categoryNameArrayをcategoryArrayから初期化 ★★
+        categoryNameArray = []
+        categoryNameArray.append("")
+        for cat in categoryArray {
+            categoryNameArray.append(cat.title)
+        }
+        categoryPicker.selectRow(0, inComponent: 0, animated: true)
+
+        // テーブルとPickerを再表示 ★★
         tableView.reloadData()
+        categoryPicker.reloadAllComponents()
     }
 }
 

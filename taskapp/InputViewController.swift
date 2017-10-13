@@ -76,7 +76,9 @@ class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
     
     // UIPickerViewのRowが選択された時の挙動 ★★
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        self.selectedCategoryId = self.categoryArray[row].id
+        if !categoryArray.isEmpty {
+            self.selectedCategoryId = self.categoryArray[row].id
+        }
     }
     
     override func didReceiveMemoryWarning() {
